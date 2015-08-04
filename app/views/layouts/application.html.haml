@@ -1,0 +1,24 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Shopping cart
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+  %body
+    %nav{:class => 'navbar navbar-default', :style => 'background: #3399FF;'}
+      .container-fluid
+        %a{:class => "navbar-brand", :style => 'color: #993300;', :href => root_path, :title => 'To start page.'} Shopping cart
+        %ul{:class => "nav navbar-nav"}
+          %li
+            %a{:href => products_path, :style => "color: #003366"} Products
+          %li
+            %a{:href => product_types_path, :style => "color: #003366"} Product types
+    - unless flash.empty?
+      - flash.each do |key, value|
+        %div{:class => "centered-top alert alert-#{key}", :style => 'width: 50%'}
+          %a{:class => "close", "data-dismiss" => "alert"} &#215;
+          = content_tag :div, value, :id => "flash_#{key}", :style => "text-align:center"
+        %br
+    = yield

@@ -1,0 +1,22 @@
+%div{ :style => 'margin: 20px' }
+  #product_type_label
+    = label_tag 'Choose products type:'
+    #product_type
+      = select_tag 'product_type_id', options_for_select(@product_types_list, @product_type_id), :style => "width:300px"
+  - @products.each do | type_id, products |
+    %div{ :style => 'font-weight: bold; margin: 10px' }= @product_types[ type_id ]
+    %table{ :class => 'table'}
+      %thead
+        %tr
+          %th Product name
+          %th Price
+      %tbody
+        - products.each do | product |
+          %tr
+            %td= product[ :title ]
+            %td= product[ :price ]
+
+:javascript
+  $( document ).ready(function() {
+   $('#product_type_id').bind('change', function() { window.location.pathname = "#{ root_path }" + '?product_type_id='+ $(this).val() });
+  });

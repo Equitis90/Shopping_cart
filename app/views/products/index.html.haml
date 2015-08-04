@@ -1,0 +1,138 @@
+%div{ :style => 'margin: 20px' }
+  %container
+    = button_tag 'Add product', :id => 'add_button',
+                :class => 'btn btn-success',
+                :style => 'float: right'
+    #product_type_label
+      = label_tag 'Choose products type:'
+      #product_type
+        = select_tag 'product_type_id', options_for_select(@product_types_list, @product_type_id), :style => "width:300px"
+  - @products.each do | type_id, products |
+    %div{ :style => 'font-weight: bold; margin: 10px' }= @product_types[ type_id ]
+    %table{ :class => 'table'}
+      %thead
+        %tr
+          %th Product name
+          %th Price
+          %th Active
+      %tbody
+        - products.each do | product |
+          %tr
+            %td= product[ :title ]
+            %td= product[ :price ]
+            %td= check_box_tag 'active', 1, product[ :active ], disabled: true
+            %td= button_tag 'Edit', id: "#{product[ :id ]}", class: 'btn btn-info'
+            %td= link_to 'Delete', product_path( :id => product[ :id ] ),
+              :data => { :confirm => "Are you sure you want to delete product?" },
+              :method => :delete,
+              :class => 'btn btn-danger'
+
+#dialog{:style => 'display: none; text-align: center'}
+  #Title_label
+  = label_tag 'Title:'
+  %br
+  = text_field_tag 'title', '', {:size => '30'}
+  #price_label
+  = label_tag 'Price:'
+  = text_field_tag 'price', '', {:size => '30'}
+  #product_type_label
+  = label_tag 'Product type:'
+  = select_tag 'types', options_for_select(@product_types_list_present_only, 0), :style => "width: 100%"
+  #active_label
+  = label_tag 'Active:'
+  = check_box_tag 'active_prod'
+
+:javascript
+  $( document ).ready(function() {
+    $( '#product_type_id' ).bind( 'change', function() { window.location.pathname = "#{ products_path }" + '?product_type_id='+ $(this).val() } );
+
+    $('.btn-info').click( function () {
+      var id = this.id;
+      $.ajax({
+        method: 'get',
+        url: "/products/" + id,
+        dataType: 'json',
+        success: function(json) {
+          //alert( JSON.stringify( json ) );
+          //var data = JSON.parse( json );
+          $( '#title' ).val( json.title );
+          $( '#price' ).val( json.price );
+          $( '#types' ).val( json.product_type_id );
+          if( json.active == true ) {
+            $( '#active_prod' ).prop( "checked", true );
+          } else {
+            $( '#active_prod' ).prop( "checked", false );
+          }
+          $( '#dialog' ).dialog({
+            width: 370,
+            closeText: "",
+            modal: true,
+            resizable: false,
+            title: "Edit product",
+            buttons: [
+              {
+                text: "Save",
+                click: function() {
+                  var checked = $( '#active_prod' ).prop( 'checked' );
+                  $.ajax({
+                    method: 'PATCH',
+                    url: "/products/" + json.id,
+                    data: { title: $( '#title' ).val(), price: $( '#price' ).val(),
+                           product_type_id: $( '#types' ).val(), active: checked
+                    }, success: function() {
+                        $('#dialog' ).dialog( "close" );
+                        window.location.replace("#{ products_path }");
+                      }
+                  });
+                }
+              },
+              {
+                text: "Cancel",
+                click: function() {
+                  $('#dialog' ).dialog( "close" );
+                }
+              }
+            ]
+          });
+        }
+      });
+    } );
+
+    $('#add_button').click( function () {
+      $( '#title' ).val( '' );
+      $( '#price' ).val( '' );
+      $( '#types' ).val( 1 );
+      $( '#active_prod' ).prop( "checked", false );
+      $( '#dialog' ).dialog({
+        width: 370,
+        closeText: "",
+        modal: true,
+        resizable: false,
+        title: "Add product",
+        buttons: [
+          {
+            text: "Add",
+            click: function() {
+              var checked = $( '#active_prod' ).prop( 'checked' );
+              $.ajax({
+                method: 'POST',
+                url: "#/products",
+                data: { title: $( '#title' ).val(), price: $( '#price' ).val(),
+                       product_type_id: $( '#types' ).val(), active: checked
+                }, success: function() {
+                    $( '#dialog' ).dialog( "close" );
+                    window.location.replace("#{ products_path }");
+                  }
+              });
+            }
+          },
+          {
+            text: "Cancel",
+            click: function() {
+              $('#dialog' ).dialog( "close" );
+            }
+          }
+        ]
+      });
+    });
+  });

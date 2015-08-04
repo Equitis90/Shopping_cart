@@ -1,0 +1,101 @@
+%div{ :style => 'margin: 20px' }
+  %container
+    = button_tag 'Add product type', :id => 'add_button',
+                :class => 'btn btn-success',
+                :style => 'float: right'
+    %table{ :class => 'table'}
+      %thead
+        %tr
+          %th Product type name
+      %tbody
+        - @product_types.each do | product_type |
+          %tr
+            %td= product_type[ :title ]
+            %td= button_tag 'Edit', id: "#{product_type[ :id ]}", class: 'btn btn-info'
+            %td= link_to 'Delete', product_type_path( :id => product_type[ :id ] ),
+              :data => { :confirm => "Are you sure you want to delete product type?" },
+              :method => :delete,
+              :class => 'btn btn-danger'
+
+#dialog{:style => 'display: none; text-align: center'}
+  #Title_label
+  = label_tag 'Title:'
+  %br
+  = text_field_tag 'title', '', {:size => '30'}
+
+:javascript
+  $( document ).ready(function() {
+    $('.btn-info').click( function () {
+      var id = this.id;
+      $.ajax({
+        method: 'get',
+        url: "/product_types/" + id,
+        dataType: 'json',
+        success: function(json) {
+          $( '#title' ).val( json.title );
+          $( '#dialog' ).dialog({
+            width: 370,
+            closeText: "",
+            modal: true,
+            resizable: false,
+            title: "Edit product type",
+            buttons: [
+              {
+                text: "Save",
+                click: function() {
+                  $.ajax({
+                    method: 'PATCH',
+                    url: "/product_types/" + json.id,
+                    data: { title: $( '#title' ).val()},
+                    success: function() {
+                        $('#dialog' ).dialog( "close" );
+                        window.location.replace("#{ product_types_path }");
+                      }
+                  });
+                }
+              },
+              {
+                text: "Cancel",
+                click: function() {
+                  $('#dialog' ).dialog( "close" );
+                }
+              }
+            ]
+          });
+        }
+      });
+    } );
+
+    $('#add_button').click( function () {
+      $( '#title' ).val( '' );
+      $( '#dialog' ).dialog({
+        width: 370,
+        closeText: "",
+        modal: true,
+        resizable: false,
+        title: "Add product type",
+        buttons: [
+          {
+            text: "Add",
+            click: function() {
+              $.ajax({
+                method: 'POST',
+                url: "#/product_types",
+                data: { title: $( '#title' ).val() },
+                success: function() {
+                    $( '#dialog' ).dialog( "close" );
+                    window.location.replace("#{ product_types_path }");
+                  }
+              });
+            }
+          },
+          {
+            text: "Cancel",
+            click: function() {
+              $('#dialog' ).dialog( "close" );
+            }
+          }
+        ]
+      });
+    });
+  });

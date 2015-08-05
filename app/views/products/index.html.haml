@@ -78,7 +78,7 @@
                     method: 'PATCH',
                     url: "/products/" + json.id,
                     data: { title: $( '#title' ).val(), price: $( '#price' ).val(),
-                           product_type_id: $( '#types' ).val(), active: checked
+                           product_type: $( '#types' ).val(), active: checked
                     }, success: function() {
                         $('#dialog' ).dialog( "close" );
                         window.location.replace("#{ products_path }");
@@ -118,7 +118,7 @@
                 method: 'POST',
                 url: "#/products",
                 data: { title: $( '#title' ).val(), price: $( '#price' ).val(),
-                       product_type_id: $( '#types' ).val(), active: checked
+                       product_type: $( '#types' ).val(), active: checked
                 }, success: function() {
                     $( '#dialog' ).dialog( "close" );
                     window.location.replace("#{ products_path }");

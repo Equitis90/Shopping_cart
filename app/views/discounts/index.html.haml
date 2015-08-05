@@ -1,0 +1,152 @@
+%div{ :style => 'margin: 20px' }
+  %container
+    = button_tag 'Add discount', :id => 'add_button',
+                :class => 'btn btn-success',
+                :style => 'float: right'
+  %table{ :class => 'table'}
+    %thead
+      %tr
+        %th Product
+        %th Product type
+        %th Quantity
+        %th Percent
+        %th Active
+        %th Value
+    %tbody
+      - @discounts.each do | discount |
+        %tr
+          %td= discount[ :product ]
+          %td= discount[ :product_type ]
+          %td= discount[ :quantity ]
+          %td= check_box_tag 'percent', 1, discount[ :percent ], disabled: true
+          %td= check_box_tag 'active', 1, discount[ :active ], disabled: true
+          %td= discount[ :value ]
+          %td= button_tag 'Edit', id: "#{discount[ :id ]}", class: 'btn btn-info'
+          %td= link_to 'Delete', discount_path( :id => discount[ :id ] ),
+            :data => { :confirm => "Are you sure you want to delete discount?" },
+            :method => :delete,
+            :class => 'btn btn-danger'
+
+#dialog{:style => 'display: none; text-align: center'}
+  #product_label
+  = label_tag 'Product:'
+  = select_tag 'products', options_for_select(@products, 0), :style => "width: 100%"
+  #product_type_label
+    = label_tag 'Product type:'
+    = select_tag 'product_types', options_for_select(@product_types, 0), :style => "width: 100%"
+  #quantity_label
+  = label_tag 'Quantity:'
+  %br
+  = number_field_tag 'quantity', '', min: 0, max: 100
+  #percent_label
+  = label_tag 'Percent:'
+  = check_box_tag 'percent_discount'
+  #active_label
+  = label_tag 'Active:'
+  = check_box_tag 'active_discount'
+  #value_label
+  = label_tag 'Value:'
+  = text_field_tag 'value', '', {:size => '30'}
+
+:javascript
+  $( document ).ready(function() {
+    $('.btn-info').click( function () {
+      var id = this.id;
+      $.ajax({
+        method: 'get',
+        url: "/discounts/" + id,
+        dataType: 'json',
+        success: function(json) {
+          $( '#products' ).val( json.product );
+          $( '#product_types' ).val( json.product_type );
+          $( '#quantity' ).val( json.quantity );
+          $( '#value' ).val( json.value );
+          if( json.percent == true ) {
+            $( '#percent_discount' ).prop( "checked", true );
+          } else {
+            $( '#percent_discount' ).prop( "checked", false );
+          }
+          if( json.active == true ) {
+            $( '#active_discount' ).prop( "checked", true );
+          } else {
+            $( '#active_discount' ).prop( "checked", false );
+          }
+          $( '#dialog' ).dialog({
+            width: 370,
+            closeText: "",
+            modal: true,
+            resizable: false,
+            title: "Edit discount",
+            buttons: [
+              {
+                text: "Save",
+                click: function() {
+                  var checked_active = $( '#active_discount' ).prop( 'checked' );
+                  var checked_percent = $( '#percent_discount' ).prop( 'checked' );
+                  $.ajax({
+                    method: 'PATCH',
+                    url: "/discounts/" + json.id,
+                    data: { products: $( '#products' ).val(), product_types: $( '#product_types' ).val(),
+                           quantity: $( '#quantity' ).val(),  value: $( '#value' ).val(), active: checked_active,
+                           percent: checked_percent
+                    }, success: function() {
+                        $('#dialog' ).dialog( "close" );
+                        window.location.replace("#{ discounts_path }");
+                      }
+                  });
+                }
+              },
+              {
+                text: "Cancel",
+                click: function() {
+                  $('#dialog' ).dialog( "close" );
+                }
+              }
+            ]
+          });
+        }
+      });
+    } );
+
+    $('#add_button').click( function () {
+      $( '#products' ).val( 0 );
+      $( '#product_types' ).val( 0 );
+      $( '#quantity' ).val( 1 );
+      $( '#value' ).val( 0 );
+      $( '#percent_discount' ).prop( "checked", false );
+      $( '#active_discount' ).prop( "checked", true );
+      $( '#dialog' ).dialog({
+        width: 370,
+        closeText: "",
+        modal: true,
+        resizable: false,
+        title: "Add discount",
+        buttons: [
+          {
+            text: "Add",
+            click: function() {
+              var checked_active = $( '#active_discount' ).prop( 'checked' );
+              var checked_percent = $( '#percent_discount' ).prop( 'checked' );
+              $.ajax({
+                method: 'POST',
+                url: "#/discounts",
+                data: { products: $( '#products' ).val(), product_types: $( '#product_types' ).val(),
+                        quantity: $( '#quantity' ).val(),  value: $( '#value' ).val(), active: checked_active,
+                        percent: checked_percent
+                }, success: function() {
+                    $( '#dialog' ).dialog( "close" );
+                    window.location.replace("#{ discounts_path }");
+                  }
+              });
+            }
+          },
+          {
+            text: "Cancel",
+            click: function() {
+              $('#dialog' ).dialog( "close" );
+            }
+          }
+        ]
+      });
+    });
+  });

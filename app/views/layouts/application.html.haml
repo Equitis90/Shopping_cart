@@ -15,6 +15,8 @@
             %a{:href => products_path, :style => "color: #003366"} Products
           %li
             %a{:href => product_types_path, :style => "color: #003366"} Product types
+          %li
+            %a{:href => discounts_path, :style => "color: #003366"} Discounts
     - unless flash.empty?
       - flash.each do |key, value|
         %div{:class => "centered-top alert alert-#{key}", :style => 'width: 50%'}

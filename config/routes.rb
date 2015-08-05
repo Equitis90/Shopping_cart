@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
   root "shop#index"
 
-  resources :shop, :products, :product_types
+  resources :shop, :products, :product_types, :discounts, :card
 end

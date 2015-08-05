@@ -44,7 +44,7 @@ class ProductsController < ApplicationController
     if product
       product.title = params[ :title ]
       product.price = params[ :price ]
-      product.type_id = params[ :product_type_id ]
+      product.type_id = params[ :product_type ]
       product.active = params[ :active ]
       product.save!
     end
@@ -55,13 +55,11 @@ class ProductsController < ApplicationController
 
   def create
     product = Product.new
-    if product
-      product.title = params[ :title ]
-      product.price = params[ :price ]
-      product.type_id = params[ :product_type_id ]
-      product.active = params[ :active ]
-      product.save!
-    end
+    product.title = params[ :title ]
+    product.price = params[ :price ]
+    product.type_id = params[ :product_type ]
+    product.active = params[ :active ]
+    product.save!
     respond_to do |format|
       format.html { render :nothing => true }
     end

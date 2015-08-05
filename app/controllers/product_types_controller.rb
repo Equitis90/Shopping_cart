@@ -33,10 +33,8 @@ class ProductTypesController < ApplicationController
 
   def create
     product_type = ProductType.new
-    if product_type
-      product_type.title = params[ :title ]
-      product_type.save!
-    end
+    product_type.title = params[ :title ]
+    product_type.save!
     respond_to do |format|
       format.html { render :nothing => true }
     end

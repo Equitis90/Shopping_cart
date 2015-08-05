@@ -1,4 +1,17 @@
 %div{ :style => 'margin: 20px' }
+  %cart{ :style => 'float: right; text-align: center', id: 'cart' }
+    - if session[ :cart_id ].nil?
+      = image_tag( 'cart_box.png', size: '60x60' )
+      %br
+      %order_count{ :id => 'order_count' } You cart is empty
+    - else
+      = link_to image_tag( 'cart_box.png', size: '60x60' ), cart_path( id: session[ :cart_id ] )
+      %order_count{ :id => 'order_count' }= OrderItem.order_sum( session[ :cart_id ] )
+      %br
+      = link_to 'Clear cart', cart_path( :id => session[ :cart_id ] ),
+                :data => { :confirm => "Are you sure you want to clear cart?" },
+                :method => :delete,
+                :class => 'btn btn-danger'
   #product_type_label
     = label_tag 'Choose products type:'
     #product_type
@@ -10,13 +23,38 @@
         %tr
           %th Product name
           %th Price
+          %th Quantity
       %tbody
         - products.each do | product |
           %tr
             %td= product[ :title ]
             %td= product[ :price ]
+            %td= number_field_tag "quantity#{product[ :id ]}", 1, min: 1
+            %td= button_tag 'Add to cart', id: "#{product[ :id ]}", class: 'btn btn-success'
 
 :javascript
   $( document ).ready(function() {
-   $('#product_type_id').bind('change', function() { window.location.pathname = "#{ root_path }" + '?product_type_id='+ $(this).val() });
+    $('#product_type_id').bind('change', function() { window.location.pathname = "#{ root_path }" + '?product_type_id='+ $(this).val() });
+
+    $('.btn.btn-success').click( function () {
+      if( $("#order_count").text() == 'You cart is empty' ) {
+        $.ajax({
+        method: 'POST',
+        url: "/cart",
+        data: { quantity: $( '#quantity' + this.id ).val(), product_id: this.id },
+        success: function() {
+          window.location.replace("#{ root_path }");
+        }
+        });
+      } else {
+        $.ajax({
+        method: 'PATCH',
+        url: "/cart/" + "#{ session[ :cart_id ] }",
+        data: { quantity: $( '#quantity' + this.id ).val(), product_id: this.id },
+        success: function( json ) {
+          $( '#order_count' ).text( json.sum );
+        }
+        });
+      }
+    });
   });

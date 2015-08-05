@@ -17,7 +17,7 @@ class ShopController < ApplicationController
 
     product_query.order( 'type_id' ).each do | product |
       @products[ product.type_id ] ||= []
-      @products[ product.type_id ] << { title: product.title, price: product.price }
+      @products[ product.type_id ] << { title: product.title, price: product.price, id: product.id }
     end
   end
 end

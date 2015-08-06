@@ -6,7 +6,7 @@ class ProductsController < ApplicationController
     @products = {}
     @product_type_id = 0
     ProductType.all.each do | p_t |
-      @product_types[p_t.id] = p_t.title
+      @product_types[ p_t.id ] = p_t.title
       @product_types_list << [ p_t.title, p_t.id ]
       @product_types_list_present_only << [ p_t.title, p_t.id ]
     end
@@ -25,8 +25,12 @@ class ProductsController < ApplicationController
   end
 
   def destroy
-    Product.where( id: params[ :id ] ).destroy_all
-    redirect_to products_path and return
+    begin
+      Product.where( id: params[ :id ] ).destroy_all
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
+    redirect_to products_path
   end
 
   def show
@@ -42,11 +46,15 @@ class ProductsController < ApplicationController
   def update
     product = Product.where( id: params[ :id ] ).first
     if product
-      product.title = params[ :title ]
-      product.price = params[ :price ]
-      product.type_id = params[ :product_type ]
-      product.active = params[ :active ]
-      product.save!
+      begin
+        product.title = params[ :title ]
+        product.price = params[ :price ]
+        product.type_id = params[ :product_type ]
+        product.active = params[ :active ]
+        product.save!
+      rescue Exception => e
+        flash[ :danger ] = e.to_s
+      end
     end
     respond_to do |format|
       format.html { render :nothing => true }
@@ -54,12 +62,16 @@ class ProductsController < ApplicationController
   end
 
   def create
-    product = Product.new
-    product.title = params[ :title ]
-    product.price = params[ :price ]
-    product.type_id = params[ :product_type ]
-    product.active = params[ :active ]
-    product.save!
+    begin
+      product = Product.new
+      product.title = params[ :title ]
+      product.price = params[ :price ]
+      product.type_id = params[ :product_type ]
+      product.active = params[ :active ]
+      product.save!
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
     respond_to do |format|
       format.html { render :nothing => true }
     end

@@ -1,0 +1,63 @@
+%div{ :style => 'margin: 20px' }
+  %container{ :style => 'float: right;' }
+    = link_to 'Clear cart', cart_path( :id => session[ :cart_id ] ),
+              :data => { :confirm => "Are you sure you want to clear cart?" },
+              :method => :delete,
+              :class => 'btn btn-danger'
+    = link_to 'Back to shop', root_path,
+              :class => 'btn btn-primary'
+  - @order_items.each do | type_id, order_items |
+    %div{ :style => 'font-weight: bold; margin: 10px' }= @product_types[ type_id ]
+    %table{ :class => 'table'}
+      %thead
+        %tr
+          %th Product name
+          %th Quantity
+          %th Price
+      %tbody
+        - order_items.each do | order_item |
+          %tr
+            %td{ :style => 'display:none', id: "order_item#{order_item[ :product_id ]}" }= order_item[ :id ]
+            %td= order_item[ :product ]
+            %td= order_item[ :quantity ]
+            %td= order_item[ :sum ]
+            %td= number_field_tag "quantity#{order_item[ :id ]}", order_item[ :quantity ], min: 0
+            %td= button_tag 'Change amount', id: "#{order_item[ :product_id ]}", class: 'btn btn-info'
+            %td= link_to 'Remove from cart',
+              { :controller => "cart",
+              :action => "remove_product_from_cart", :id => order_item[ :id ] },
+              :data => { :confirm => "Are you sure you want to remove product from cart?" },
+              :class => 'btn btn-danger'
+  %div{ :style => 'text-align: right' }
+    %div
+      %span{ :style => 'font-size: large' } Sum:
+      %span{ :style => 'font-size: large; font-weight: bold; color: red' }= @total_sum
+    %div
+      %span{ :style => 'font-size: large' } Total discount:
+      %span{ :style => 'font-size: large; font-weight: bold; color: green' }= @total_discount
+    %div
+      %span{ :style => 'font-size: large' } Total sum:
+      %span{ :style => 'font-size: large; font-weight: bold; color: red' }= @sum_with_discount
+  %div{ :style => 'text-align: center' }
+    = button_tag 'Buy', id: 'buy_button', class: 'btn btn-success'
+
+:javascript
+  $( document ).ready(function() {
+    $('#buy_button').click( function () {
+      alert( 'Buy successful!' );
+    });
+
+    $('.btn-info').click( function () {
+      var id = this.id;
+      var item_id = $( '#order_item' + id ).text();
+      $.ajax({
+        method: 'PATCH',
+        url: "/cart/" + "#{ session[ :cart_id ] }",
+        data: { order_item_id: item_id, quantity: $( '#quantity' + item_id ).val() },
+        dataType: 'json',
+        success: function() {
+          window.location.replace("#{ cart_path( id: session[ :cart_id ] ) }");
+        }
+      });
+    } );
+  });

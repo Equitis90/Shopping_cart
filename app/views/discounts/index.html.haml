@@ -10,6 +10,7 @@
         %th Product type
         %th Quantity
         %th Percent
+        %th Total
         %th Active
         %th Value
     %tbody
@@ -19,6 +20,7 @@
           %td= discount[ :product_type ]
           %td= discount[ :quantity ]
           %td= check_box_tag 'percent', 1, discount[ :percent ], disabled: true
+          %td= check_box_tag 'total', 1, discount[ :total ], disabled: true
           %td= check_box_tag 'active', 1, discount[ :active ], disabled: true
           %td= discount[ :value ]
           %td= button_tag 'Edit', id: "#{discount[ :id ]}", class: 'btn btn-info'
@@ -41,6 +43,9 @@
   #percent_label
   = label_tag 'Percent:'
   = check_box_tag 'percent_discount'
+  #total_label
+  = label_tag 'Total:'
+  = check_box_tag 'total_discount'
   #active_label
   = label_tag 'Active:'
   = check_box_tag 'active_discount'
@@ -71,6 +76,11 @@
           } else {
             $( '#active_discount' ).prop( "checked", false );
           }
+          if( json.total == true ) {
+            $( '#total_discount' ).prop( "checked", true );
+          } else {
+            $( '#total_discount' ).prop( "checked", false );
+          }
           $( '#dialog' ).dialog({
             width: 370,
             closeText: "",
@@ -83,12 +93,13 @@
                 click: function() {
                   var checked_active = $( '#active_discount' ).prop( 'checked' );
                   var checked_percent = $( '#percent_discount' ).prop( 'checked' );
+                  var checked_total = $( '#total_discount' ).prop( 'checked' );
                   $.ajax({
                     method: 'PATCH',
                     url: "/discounts/" + json.id,
                     data: { products: $( '#products' ).val(), product_types: $( '#product_types' ).val(),
                            quantity: $( '#quantity' ).val(),  value: $( '#value' ).val(), active: checked_active,
-                           percent: checked_percent
+                           percent: checked_percent, total: checked_total
                     }, success: function() {
                         $('#dialog' ).dialog( "close" );
                         window.location.replace("#{ discounts_path }");
@@ -114,6 +125,7 @@
       $( '#quantity' ).val( 1 );
       $( '#value' ).val( 0 );
       $( '#percent_discount' ).prop( "checked", false );
+      $( '#total_discount' ).prop( "checked", false );
       $( '#active_discount' ).prop( "checked", true );
       $( '#dialog' ).dialog({
         width: 370,
@@ -127,12 +139,13 @@
             click: function() {
               var checked_active = $( '#active_discount' ).prop( 'checked' );
               var checked_percent = $( '#percent_discount' ).prop( 'checked' );
+              var checked_total = $( '#total_discount' ).prop( 'checked' );
               $.ajax({
                 method: 'POST',
                 url: "#/discounts",
                 data: { products: $( '#products' ).val(), product_types: $( '#product_types' ).val(),
                         quantity: $( '#quantity' ).val(),  value: $( '#value' ).val(), active: checked_active,
-                        percent: checked_percent
+                        percent: checked_percent, total: checked_total
                 }, success: function() {
                     $( '#dialog' ).dialog( "close" );
                     window.location.replace("#{ discounts_path }");

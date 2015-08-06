@@ -19,7 +19,7 @@
             %a{:href => discounts_path, :style => "color: #003366"} Discounts
     - unless flash.empty?
       - flash.each do |key, value|
-        %div{:class => "centered-top alert alert-#{key}", :style => 'width: 50%'}
+        %div{:class => "alert alert-#{key}", :style => 'width: 50%; margin: 0 auto'}
           %a{:class => "close", "data-dismiss" => "alert"} &#215;
           = content_tag :div, value, :id => "flash_#{key}", :style => "text-align:center"
         %br

@@ -8,7 +8,11 @@ class ProductTypesController < ApplicationController
   end
 
   def destroy
-    ProductType.where( id: params[ :id ] ).destroy_all
+    begin
+      ProductType.where( id: params[ :id ] ).destroy_all
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
     redirect_to product_types_path and return
   end
 
@@ -23,8 +27,12 @@ class ProductTypesController < ApplicationController
   def update
     product_type = ProductType.where( id: params[ :id ] ).first
     if product_type
-      product_type.title = params[ :title ]
-      product_type.save!
+      begin
+        product_type.title = params[ :title ]
+        product_type.save!
+      rescue Exception => e
+        flash[ :danger ] = e.to_s
+      end
     end
     respond_to do |format|
       format.html { render :nothing => true }
@@ -32,9 +40,13 @@ class ProductTypesController < ApplicationController
   end
 
   def create
-    product_type = ProductType.new
-    product_type.title = params[ :title ]
-    product_type.save!
+    begin
+      product_type = ProductType.new
+      product_type.title = params[ :title ]
+      product_type.save!
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
     respond_to do |format|
       format.html { render :nothing => true }
     end

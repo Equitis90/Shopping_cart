@@ -24,13 +24,18 @@ class DiscountsController < ApplicationController
                       percent: discount.percent,
                       value: discount.value,
                       active: discount.active,
+                      total: discount.total,
                       id: discount.id
       }
     end
   end
 
   def destroy
-    Discount.where( id: params[ :id ] ).destroy_all
+    begin
+      Discount.where( id: params[ :id ] ).destroy_all
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
     redirect_to discounts_path and return
   end
 
@@ -42,6 +47,7 @@ class DiscountsController < ApplicationController
                   percent: discount.percent,
                   value: discount.value,
                   active: discount.active,
+                  total: discount.total,
                   id: discount.id
     }
     respond_to do |format|
@@ -52,13 +58,18 @@ class DiscountsController < ApplicationController
   def update
     discount = Discount.where( id: params[ :id ] ).first
     if discount
+      begin
       discount.product_id = params[ :products ].to_i == 0 ? nil : params[ :products ]
       discount.product_type_id = params[ :product_types ].to_i == 0 ? nil : params[ :product_types ]
       discount.quantity = params[ :quantity ]
       discount.percent = params[ :percent ]
       discount.value = params[ :value ]
       discount.active = params[ :active ]
-      discount.save
+      discount.total = params[ :total ]
+      discount.save!
+      rescue Exception => e
+        flash[ :danger ] = e.to_s
+      end
     end
     respond_to do |format|
       format.html { render :nothing => true }
@@ -66,14 +77,19 @@ class DiscountsController < ApplicationController
   end
 
   def create
-    discount = Discount.new
-    discount.product_id = params[ :products ].to_i == 0 ? nil : params[ :products ]
-    discount.product_type_id = params[ :product_types ].to_i == 0 ? nil : params[ :product_types ]
-    discount.quantity = params[ :quantity ]
-    discount.percent = params[ :percent ]
-    discount.value = params[ :value ]
-    discount.active = params[ :active ]
-    discount.save
+    begin
+      discount = Discount.new
+      discount.product_id = params[ :products ].to_i == 0 ? nil : params[ :products ]
+      discount.product_type_id = params[ :product_types ].to_i == 0 ? nil : params[ :product_types ]
+      discount.quantity = params[ :quantity ]
+      discount.percent = params[ :percent ]
+      discount.value = params[ :value ]
+      discount.active = params[ :active ]
+      discount.total = params[ :total ]
+      discount.save!
+    rescue Exception => e
+      flash[ :danger ] = e.to_s
+    end
     respond_to do |format|
       format.html { render :nothing => true }
     end

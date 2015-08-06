@@ -1,7 +1,7 @@
 class Discount < ActiveRecord::Base
   scope :active, -> { where(active: true) }
 
-  validates :quantity, :percent, :value, :active, :total, presence: true
+  validates :quantity, :value, presence: true
   validates :value, :quantity, numericality: true
 
   before_validation :validate_product_types

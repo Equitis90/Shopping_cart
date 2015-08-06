@@ -15,3 +15,13 @@ products = [ [ 'Black tea', tea_id, 10 ], [ 'Some coffee', coffee_id, 15 ], [ 'S
 products.each do | product |
   Product.create!( title: product[0], type_id: product[1], price: product[2] )
 end
+
+black_tea_id = Product.where( :title => 'Black tea' ).first.id
+discounts = [ [ black_tea_id, nil, 3, true, 20, true ], [ nil, coffee_id, 2, false, 10, false ] ]
+
+discounts.each do | discount |
+  Discount.create!( product_id: discount[ 0 ],
+    product_type_id: discount[ 1 ], quantity: discount[ 2 ],
+    percent: discount[ 3 ], value: discount[ 4 ], active: true, total: discount[ 5 ]
+  )
+end

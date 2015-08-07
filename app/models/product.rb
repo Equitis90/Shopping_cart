@@ -3,6 +3,9 @@ class Product < ActiveRecord::Base
 
   scope :active, -> { where(active: true) }
 
+  validates :title, :price, :type_id, presence: true
+  validates :price, numericality: true
+
   before_destroy :destroy_validation
 
   def destroy_validation
